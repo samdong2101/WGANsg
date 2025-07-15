@@ -1,6 +1,4 @@
 from WGAN_sg import WGAN_sg_model
-from WGAN_sg.WGAN_sg_model import build_generator,build_discriminator
-from WGAN_sg.WGAN_sg_model import GANS
 from featurize import struct2img
 from post_process import img2struct
 import pickle
@@ -50,6 +48,7 @@ def extract_coords(images, dims, num_atoms):
         count = count + 1
     return np.array(coords)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Run training with JSON config.")
     parser.add_argument(
@@ -59,44 +58,46 @@ def main():
         help='Path to JSON config file, e.g., config.json'
     )
     args = parser.parse_args()
-
+    with open(args.config) as f:
+        config = json.load(f)
     structures_path = config.get("structures_path")
     elem_list = config.get("elem_list")
     max_atoms = config.get("max_atoms")
     min_atoms = config.get("min_atoms")
+    batch_size = config.get("batch_size")
     g_lr = config.get("g_lr")
     c_lr = config.get("c_lr")
-    inner_epoch = config.get("inner_epoch")
-    outer_epoch = config.get("outer_epoch")
     generator_weight_path = config.get("generator_weights_path")
     num_images = config.get("num_images")
     poscar_path = config.get("poscar_path")
-    
 
-    with open(config.get(structures_path), "rb") as f:
+    print('loading structures...')
+    with open(structures_path, "rb") as f:
         structures = pickle.load(f)
 
-    pre_process = featurize.PreprocessData(structures,elem_list,max_atoms,min_atoms)
+    pre_process = struct2img.PreprocessData(structures,elem_list,max_atoms,min_atoms)
     structs = pre_process.preprocess_data()
-    png = featurize.PNGrepresentation(structs,None)
+    png = struct2img.PNGrepresentation(structs,None)
     pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
 
-    generator = build_generator(png_dim1,png_dim2,input_dim = 64)
-    discriminator = build_discriminator(png_dim1,png_dim2)
+    generator = WGAN_sg_model.build_generator(png_dim1,png_dim2,input_dim = 64)
+    discriminator = WGAN_sg_model.build_discriminator(png_dim1,png_dim2)
     g_opt = tf.keras.optimizers.RMSprop(learning_rate = g_lr)
     d_opt = tf.keras.optimizers.RMSprop(learning_rate = c_lr)
     g_loss = WGAN_sg_model.BinaryCrossentropy()
     d_loss = WGAN_sg_model.BinaryCrossentropy()
-    gans = GANS(generator,discriminator,input_dim = 64)
+    gans = WGAN_sg_model.GANS(generator,discriminator,input_dim = 64)
     gans.compile(g_opt,d_opt,g_loss,d_loss)
+    batched_data = gans.batch_data(pngs,batch_size)
+
     emds = []
-    for i in range(outer_epoch):
-        print(f'epoch {i*inner_epoch}')
+    for i in range(50):
+        print(f'epoch {i*50}')
         gen_image_coords = []
         real_image_coords = []
         num_atoms = 2
-        hist = gans.fit(batch1,
-                        epochs=inner_epoch,
+        hist = gans.fit(batched_data,
+                        epochs=50,
                         batch_size = batch_size)
         gen_images = generator(tf.random.normal((1000,64,1)), training=True)
         gen_images = gen_images.numpy()
@@ -126,8 +127,10 @@ def main():
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
     rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
-    convert = convert_to_poscar.POSCAR(rescaled_images,elem_list,poscar_path)
+    convert = img2struct.POSCAR(rescaled_images,elem_list,poscar_path)
     converted_structures = convert.convert_to_poscars()
 
 if __name__ == '__main__':
     main()
+~            
+

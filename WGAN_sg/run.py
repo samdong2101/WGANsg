@@ -2,7 +2,7 @@ from WGAN_sg import WGAN_sg_model
 from WGAN_sg.WGAN_sg_model import build_generator,build_discriminator
 from WGAN_sg.WGAN_sg_model import GANS
 from featurize import struct2img
-from WGAN_sg import convert_to_poscar
+from post_process import img2struct
 import pickle
 import tensorflow as tf
 import time
@@ -101,5 +101,5 @@ for i in range(50):
 
 gen_images = generator(tf.random.normal((1000,64,1)), training=True)
 rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
-convert = convert_to_poscar.POSCAR(test_images,['Zr','Cu','Al'],'/home/sam.dong/WGAN_sg/POSCARS/')
+convert = img2struct.POSCAR(test_images,['Zr','Cu','Al'],'/home/sam.dong/WGAN_sg/POSCARS/')
 converted_structures = convert.convert_to_poscars()

@@ -48,7 +48,7 @@ def extract_coords(images, dims, num_atoms):
             pass
         count = count + 1
     return np.array(coords)
-  def main():
+def main():
     parser = argparse.ArgumentParser(description="Run training with JSON config.")
     parser.add_argument(
         '--config',

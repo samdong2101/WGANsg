@@ -1,7 +1,7 @@
 from WGAN_sg import WGAN_sg_model
 from WGAN_sg.WGAN_sg_model import build_generator,build_discriminator
 from WGAN_sg.WGAN_sg_model import GANS
-from WGAN_sg import featurize
+from featurize import struct2img
 from WGAN_sg import convert_to_poscar
 import pickle
 import tensorflow as tf
@@ -15,9 +15,9 @@ from scipy.stats import wasserstein_distance
 
 with open("/blue/hennig/sam.dong/structure_energies.pkl", "rb") as f:
     structures = pickle.load(f)
-pre_process = featurize.PreprocessData(structures,['Zr','Cu','Al'],20,1)
+pre_process = struct2img.PreprocessData(structures,['Zr','Cu','Al'],20,1)
 structs = pre_process.preprocess_data()
-png = featurize.PNGrepresentation(structs,None)
+png = struct2img.PNGrepresentation(structs,None)
 pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
 generator = build_generator(png_dim1,png_dim2,input_dim = 64)
 discriminator = build_discriminator(png_dim1,png_dim2)

@@ -141,7 +141,7 @@ class PreprocessData:
             print('Done preprocessing! ')
             return filtered_structures
         
-lass PNGrepresentation:
+class PNGrepresentation:
     def __init__(self,structures_list,bool_frac_coords = True):
         # Pairwise distance matrices and max dimension
         self.pwds = None        # List of padded pairwise distance matrices

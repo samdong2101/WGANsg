@@ -1,4 +1,4 @@
-
+# Core Python
 import os
 import io
 import csv
@@ -7,41 +7,32 @@ import random
 import fnmatch
 import pickle
 
-
+# Numerical and Data Handling
 import numpy as np
 import pandas as pd
 
+# Plotting
+import matplotlib.pyplot as plt
+from matplotlib import pyplot as plt  # Redundant — remove one (see note below)
 
-from matplotlib import pyplot as plt  
-
-
+# ASE (Atomic Simulation Environment)
 from ase import Atoms
 from ase.io import read, write
 from ase.build import molecule
 
-
+# Pymatgen
 from pymatgen.core import Lattice, Structure, Molecule, Element
 from pymatgen.transformations.standard_transformations import RotationTransformation
 
-
+# Machine Learning
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 
-
-import tensorflow as tf
-from tensorflow.keras.models import Sequential, Model
-from tensorflow.keras.layers import (
-    Conv1D, Conv2D, Dense, Flatten, Reshape,
-    LeakyReLU, Dropout, UpSampling2D, UpSampling1D
-)
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
-from tensorflow.keras.preprocessing.image import array_to_img
-from tensorflow.keras.callbacks import Callback
-
+with open("/blue/hennig/sam.dong/structure_energies.pkl", "rb") as f:
+    structures = pickle.load(f)
 
 class PreprocessData:
-    
+
     def __init__(self,structures_list,composition,max_size,min_size,augment = True, min_energy = 0.1):
         # Pairwise distance matrices and max dimension
         self.structures_list = structures_list
@@ -50,6 +41,7 @@ class PreprocessData:
         self.min_size = min_size
         self.augment = augment
         self.min_energy = min_energy
+        assert self.min_size < self.max_size, 'min_size is greater than max_size'
     def extract_structures(self,structures_list, elem_list):
         """
         Filters a list of structures, retaining only those composed entirely of the specified elements.
@@ -74,7 +66,7 @@ class PreprocessData:
             structure_atomic_numbers = set(structure.atomic_numbers)
             if structure_atomic_numbers.issubset(allowed_atomic_numbers):
                 extracted_structures.append(structure)
-                
+
         return extracted_structures
 
     def filter_structures(self,dataset,max_size,min_size,min_energy):
@@ -93,7 +85,7 @@ class PreprocessData:
         Returns:
         --------
         filtered_structures : list
-            A list of structures whose number of atoms is strictly greater than min_size 
+            A list of structures whose number of atoms is strictly greater than min_size
             and less than or equal to max_size.
         """
         filtered_energy_dataset = [i[0] for i in dataset if i[1]<=self.min_energy]
@@ -102,7 +94,7 @@ class PreprocessData:
             x = i.distance_matrix.shape[0]
             if x<=max_size and x> min_size:
                 filtered_structures.append(i)
-        return filtered_structures 
+        return filtered_structures
 
     def generate_rotated_structures(self,structures, num_angles=15):
         """
@@ -113,7 +105,7 @@ class PreprocessData:
         structures : list
             A list of Pymatgen Structure objects to rotate.
         num_angles : int, optional (default=15)
-            The number of evenly spaced rotation angles (in degrees) between 0 and 360 
+            The number of evenly spaced rotation angles (in degrees) between 0 and 360
             to apply around each axis.
 
         Returns:
@@ -134,7 +126,7 @@ class PreprocessData:
                     rotated = rotation.apply_transformation(structure)
                     rotated_data_set.append(rotated)
         return rotated_data_set
-    
+
     def preprocess_data(self):
         print(f'Filtering {len(self.structures_list)} structures < {self.min_energy} eV with max {self.max_size} atoms and min {self.min_size} atoms...')
         filtered_structures = self.filter_structures(self.structures_list, self.max_size, self.min_size, self.min_energy)
@@ -149,7 +141,7 @@ class PreprocessData:
             print('Done preprocessing! ')
             return filtered_structures
         
-class PNGrepresentation:
+lass PNGrepresentation:
     def __init__(self,structures_list,bool_frac_coords = True):
         # Pairwise distance matrices and max dimension
         self.pwds = None        # List of padded pairwise distance matrices
@@ -157,29 +149,31 @@ class PNGrepresentation:
         self.structures_list = structures_list
         # Atomic numbers
         self.atomic_numbers = None   # 2D array of padded atomic numbers
-        
+
         # Fractional coordinates
         self.x_coords = None
         self.y_coords = None
         self.z_coords = None
-        
+
         # Lattice parameters (a, b, c)
         self.a_parameters = None
         self.b_parameters = None
         self.c_parameters = None
-        
+
         # Lattice angles (alpha, beta, gamma)
         self.alphas = None
         self.betas = None
         self.gammas = None
-        
+
         # Cell volumes
         self.volumes = None
         self.pngs = None
         self.png_dim1 = None
         self.png_dim2 = None
+        # Extraneous
         self.bool_frac_coords = bool_frac_coords
-        
+        self.divisor_list = []
+        self.factor_list = []
         # Any other attributes can be added here as needed
     def get_pairwise_distances(self,structures):
 
@@ -207,18 +201,18 @@ class PNGrepresentation:
         distance_mats = [structure.distance_matrix*15 for structure in structures]
         dim_mat = [structure.distance_matrix.shape[0] for structure in structures]
         max_dim = max(dim_mat)
-        pwds_mats = []  
+        pwds_mats = []
         for dis_mat in distance_mats:
             rows_padding = max_dim-dis_mat.shape[0]
             cols_padding = max_dim-dis_mat.shape[1]
             padded_distance_mat = np.pad(dis_mat,((0,rows_padding),(0,cols_padding)),mode = 'constant')
-            pwds_mats.append(padded_distance_mat) 
+            pwds_mats.append(padded_distance_mat)
         self.pwds = pwds_mats
         self.max_dim = max_dim
         return pwds_mats,max_dim
-    
+
     def get_atomic_numbers(self,structures,max_dim):
-        
+
         """
         Extracts and pads atomic number arrays from a list of structures.
 
@@ -237,7 +231,7 @@ class PNGrepresentation:
             atomic numbers for a structure, padded with zeros as needed. The values are scaled
             by a factor of 4.
         """
-        
+
         atomic_numbers = []
         for structure in structures:
             atomic_numbers_arr = np.array(structure.atomic_numbers)
@@ -247,10 +241,11 @@ class PNGrepresentation:
             ])
             atomic_numbers.append(padded_atomic_numbers)
         self.atomic_numbers = np.array(atomic_numbers)*4
+        self.factor_list.append(4)
         return atomic_numbers
-    
+
     def add_coordinates(self,structure_list,max_dim,frac_coords = True):
-        
+
         """
         Extracts and pads fractional atomic coordinates from a list of structures.
 
@@ -272,9 +267,14 @@ class PNGrepresentation:
         """
         if frac_coords:
             coords_list = [structure.frac_coords*125 for structure in structure_list]
+            self.factor_list.append(125)
+            self.factor_list.append(125)
+            self.factor_list.append(125)
         else:
             coords_list = [structure.frac_coords*25 for structure in structure_list]
-        
+            self.factor_list.append(25)
+            self.factor_list.append(25)
+            self.factor_list.append(25)
         x_coords = [list(np.pad([c[0] for c in coord], (0, max_dim - len(coord)))) for coord in coords_list]
         y_coords = [list(np.pad([c[1] for c in coord], (0, max_dim - len(coord)))) for coord in coords_list]
         z_coords = [list(np.pad([c[2] for c in coord], (0, max_dim - len(coord)))) for coord in coords_list]
@@ -282,7 +282,7 @@ class PNGrepresentation:
         self.y_coords = y_coords
         self.z_coords = z_coords
         return x_coords,y_coords,z_coords
-    
+
     def add_lattice_constants(self, structure_list, max_dim, frac_coords):
         """
         Extracts and pads lattice parameters (a, b, c) from a list of structures.
@@ -303,16 +303,19 @@ class PNGrepresentation:
             expanded into an array of length `max_dim`. The padding is effectively zero, but
             since zeros are multiplied by 10, the padding remains zero.
         """
-        a_parameters = [structure.lattice.abc[0]+np.zeros(max_dim)*10 for structure in structure_list]
-        b_parameters = [structure.lattice.abc[1]+np.zeros(max_dim)*10 for structure in structure_list]
-        c_parameters = [structure.lattice.abc[2]+np.zeros(max_dim)*10 for structure in structure_list]
+        a_parameters = [(structure.lattice.abc[0]+np.zeros(max_dim))*10 for structure in structure_list]
+        b_parameters = [(structure.lattice.abc[1]+np.zeros(max_dim))*10 for structure in structure_list]
+        c_parameters = [(structure.lattice.abc[2]+np.zeros(max_dim))*10 for structure in structure_list]
         self.a_parameters = a_parameters
         self.b_parameters = b_parameters
         self.c_parameters = c_parameters
+        self.factor_list.append(10)
+        self.factor_list.append(10)
+        self.factor_list.append(10)
         return a_parameters,b_parameters,c_parameters
-    
+
     def add_lattice_angles(self,structure_list,max_dim):
-        
+
         """
         Extracts and pads lattice angles (alpha, beta, gamma) from a list of structures.
 
@@ -321,25 +324,27 @@ class PNGrepresentation:
         structure_list : list
             A list of Pymatgen Structure objects from which lattice angles will be extracted.
         max_dim : int
-            The target length for padding each lattice angle array. Each angle value will be 
+            The target length for padding each lattice angle array. Each angle value will be
             repeated and padded to this length.
 
         Returns:
         --------
         alpha, beta, gamma : lists of np.ndarray
             Three lists containing padded lattice angles alpha, beta, and gamma, respectively.
-            Each entry corresponds to a structure, where the scalar lattice angle is expanded 
+            Each entry corresponds to a structure, where the scalar lattice angle is expanded
             into an array of length `max_dim`.
-            
+
         """
-        
+
         alphas = [structure.lattice.angles[0]+np.zeros(max_dim) for structure in structure_list]
         betas = [structure.lattice.angles[1]+np.zeros(max_dim) for structure in structure_list]
         gammas = [structure.lattice.angles[2]+np.zeros(max_dim) for structure in structure_list]
         self.alphas = alphas
         self.betas = betas
         self.gammas = gammas
-        
+        self.factor_list.append(1)
+        self.factor_list.append(1)
+        self.factor_list.append(1)
         return alphas, betas, gammas
     def add_cell_volume(self,structure_list,max_dim):
         """
@@ -359,11 +364,12 @@ class PNGrepresentation:
             A list where each element is an array of length `max_dim` filled with the cell
             volume (scaled by 1/5) of the corresponding structure.
         """
-        
+
         volumes = [np.zeros(max_dim) + structure.volume/5 for structure in structure_list]
         self.volumes = volumes
+        self.factor_list.append(0.2)
         return volumes
-    
+
     def compile_pngs(self):
         pngs = [np.vstack([self.atomic_numbers[i],self.x_coords[i],self.y_coords[i],self.z_coords[i],
                             self.a_parameters[i],self.b_parameters[i],
@@ -371,18 +377,18 @@ class PNGrepresentation:
                            self.volumes[i],self.pwds[i]]) for i in range(len(self.structures_list))]
         self.pngs = pngs
         return pngs
-    
+
     def truncate_pngs(self):
         truncated_pngs = [png[0:11] for png in self.pngs]
         self.pngs = truncated_pngs
         return truncated_pngs
-    
+
     def normalize_pngs(self):
-        divisor_list = [max([max(i[j]) for i in self.pngs]) for j in range(len(self.pngs[0]))]
+        self.divisor_list = [max([max(i[j]) for i in self.pngs]) for j in range(len(self.pngs[0]))]
         for png in self.pngs:
             for row in range(len(png)):
-                png[row] = png[row]/divisor_list[row]
-        
+                png[row] = png[row]/self.divisor_list[row]
+
     def featurize(self):
         print(f'Featurizing {len(self.structures_list)} structures into images...')
         pwds,max_dim = self.get_pairwise_distances(self.structures_list)
@@ -396,4 +402,5 @@ class PNGrepresentation:
         self.normalize_pngs()
         print(f'Featurization complete!')
         self.png_dim1,self.png_dim2 = self.pngs[0].shape[0],self.pngs[0].shape[1]
-        return self.pngs,self.png_dim1,self.png_dim2
+        return self.pngs,self.png_dim1,self.png_dim2,self.divisor_list,self.factor_list
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       406,1         Bot

@@ -13,20 +13,7 @@ import random
 from pymatgen.core.periodic_table import Element
 from scipy.stats import wasserstein_distance
 
-with open("/blue/hennig/sam.dong/structure_energies.pkl", "rb") as f:
-    structures = pickle.load(f)
-pre_process = struct2img.PreprocessData(structures,['Zr','Cu','Al'],20,1)
-structs = pre_process.preprocess_data()
-png = struct2img.PNGrepresentation(structs,None)
-pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
-generator = build_generator(png_dim1,png_dim2,input_dim = 64)
-discriminator = build_discriminator(png_dim1,png_dim2)
-g_opt = tf.keras.optimizers.RMSprop(learning_rate = 0.0002)
-d_opt = tf.keras.optimizers.RMSprop(learning_rate = 0.000077)
-g_loss = WGAN_sg_model.BinaryCrossentropy()
-d_loss = WGAN_sg_model.BinaryCrossentropy()
-gans = GANS(generator,discriminator,input_dim = 64)
-gans.compile(g_opt,d_opt,g_loss,d_loss)
+
 def pool_coords(arr):
     pooled_coords = np.hstack(arr)
     x_coords = pooled_coords[:,0]
@@ -63,43 +50,84 @@ def extract_coords(images, dims, num_atoms):
         count = count + 1
     return np.array(coords)
 
-emds = []
-elem_list = 
-for i in range(50):
-    print(f'epoch {i*50}')
-    gen_image_coords = []
-    real_image_coords = []
-    num_atoms = 2
-    hist = gans.fit(batch1,
-                    epochs=50,
-                    batch_size = batch_size)
-    gen_images = generator(tf.random.normal((1000,64,1)), training=True)
-    gen_images = gen_images.numpy()
-    real_images = random.sample(pngs,1000)rescale_images(real_images,divisor_list,factor_list)
-    generated_images = rescale_images(gen_images,divisor_list,factor_list)
-    real_images = rescale_images(real_images,divisor_list,factor_list)
-    elem_list = pre_process.elem_list
-    gen_dims = extract_dims(generated_images,elem_list = elem_list)
-    real_dims = extract_dims(real_images,elem_list = elem_list)
-    gen_coords = extract_coords(generated_images,gen_dims,num_atoms)
-    real_coords = extract_coords(generated_images,gen_dims,num_atoms)
-    x_gen,y_gen,z_gen = pool_coords(gen_coords)
-    x_real,y_real,z_real = pool_coords(real_coords)
-    emd_x = wasserstein_distance(x_real,x_gen)
-    emd_y = wasserstein_distance(y_real,y_gen)
-    emd_z = wasserstein_distance(z_real,z_gen)
-    try:
-        emd_means = [np.mean(emd) for emd in emds]
-        if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):
-            now = datetime.now()
-            now = str(now).replace(' ','_')
-            print(f'saving generator weights with tag {now}')
-            generator.save_weights(f'/blue/hennig/sam.dong/wgan-sg/generator_weights/Zr_Cu_Al_min_emd_{now}.h5')
-    except:
-        print('first iteration, no available data')
-    emds.append([emd_x,emd_y,emd_z])
+def main():
+    parser = argparse.ArgumentParser(description="Run training with JSON config.")
+    parser.add_argument(
+        '--config',
+        type=str,
+        required=True,
+        help='Path to JSON config file, e.g., config.json'
+    )
+    args = parser.parse_args()
 
-gen_images = generator(tf.random.normal((1000,64,1)), training=True)
-rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
-convert = img2struct.POSCAR(test_images,['Zr','Cu','Al'],'/home/sam.dong/WGAN_sg/POSCARS/')
-converted_structures = convert.convert_to_poscars()
+    structures_path = config.get("structures_path")
+    elem_list = config.get("elem_list")
+    max_atoms = config.get("max_atoms")
+    min_atoms = config.get("min_atoms")
+    g_lr = config.get("g_lr")
+    c_lr = config.get("c_lr")
+    inner_epoch = config.get("inner_epoch")
+    outer_epoch = config.get("outer_epoch")
+    generator_weight_path = config.get("generator_weights_path")
+    num_images = config.get("num_images")
+    poscar_path = config.get("poscar_path")
+    
+
+    with open(config.get(structures_path), "rb") as f:
+        structures = pickle.load(f)
+
+    pre_process = featurize.PreprocessData(structures,elem_list,max_atoms,min_atoms)
+    structs = pre_process.preprocess_data()
+    png = featurize.PNGrepresentation(structs,None)
+    pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
+
+    generator = build_generator(png_dim1,png_dim2,input_dim = 64)
+    discriminator = build_discriminator(png_dim1,png_dim2)
+    g_opt = tf.keras.optimizers.RMSprop(learning_rate = g_lr)
+    d_opt = tf.keras.optimizers.RMSprop(learning_rate = c_lr)
+    g_loss = WGAN_sg_model.BinaryCrossentropy()
+    d_loss = WGAN_sg_model.BinaryCrossentropy()
+    gans = GANS(generator,discriminator,input_dim = 64)
+    gans.compile(g_opt,d_opt,g_loss,d_loss)
+    emds = []
+    for i in range(outer_epoch):
+        print(f'epoch {i*inner_epoch}')
+        gen_image_coords = []
+        real_image_coords = []
+        num_atoms = 2
+        hist = gans.fit(batch1,
+                        epochs=inner_epoch,
+                        batch_size = batch_size)
+        gen_images = generator(tf.random.normal((1000,64,1)), training=True)
+        gen_images = gen_images.numpy()
+        real_images = random.sample(pngs,1000)
+        generated_images = rescale_images(gen_images,divisor_list,factor_list)
+        real_images = rescale_images(real_images,divisor_list,factor_list)
+        elem_list = pre_process.elem_list
+        gen_dims = extract_dims(generated_images,elem_list = elem_list)
+        real_dims = extract_dims(real_images,elem_list = elem_list)
+        gen_coords = extract_coords(generated_images,gen_dims,num_atoms)
+        real_coords = extract_coords(generated_images,gen_dims,num_atoms)
+        x_gen,y_gen,z_gen = pool_coords(gen_coords)
+        x_real,y_real,z_real = pool_coords(real_coords)
+        emd_x = wasserstein_distance(x_real,x_gen)
+        emd_y = wasserstein_distance(y_real,y_gen)
+        emd_z = wasserstein_distance(z_real,z_gen)
+        try:
+            emd_means = [np.mean(emd) for emd in emds]
+            if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):
+                now = datetime.now()
+                now = str(now).replace(' ','_')
+                print(f'saving generator weights with tag {now}')
+                generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
+        except:
+            print('first iteration, no available data')
+        emds.append([emd_x,emd_y,emd_z])
+    generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
+    gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
+    rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
+    convert = convert_to_poscar.POSCAR(rescaled_images,elem_list,poscar_path)
+    converted_structures = convert.convert_to_poscars()
+
+if __name__ == '__main__':
+    main()

@@ -1,4 +1,4 @@
-from WGAN_sg import WGAN_sg_model
+import WGAN_sg_model
 from featurize import struct2img
 from post_process import img2struct
 import pickle

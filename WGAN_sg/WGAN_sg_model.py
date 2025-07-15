@@ -9,9 +9,9 @@ from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 from tensorflow.keras.preprocessing.image import array_to_img
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras import layers
-from WGAN_sg.featurize import PreprocessData,PNGrepresentation
+from featurize.struct2img import PreprocessData,PNGrepresentation
 import pickle
-
+import numpy as np
 
 def build_generator(png_dim1,png_dim2,input_dim):
     model = Sequential()
@@ -79,7 +79,7 @@ with tf.device(device):
             self.batch_size = None
             self.generator = generator
             self.discriminator = discriminator
-            
+
         def compile(self,g_opt,d_opt,g_loss,d_loss,*args,**kwargs):
             super().compile(*args,**kwargs)
             self.g_opt = g_opt
@@ -91,16 +91,17 @@ with tf.device(device):
             data_size = (len(data)//batch_size)*batch_size
             batched_data = data.reshape((data.shape[0],data.shape[1],data.shape[2],1))[0:data_size]
             self.batch_size = batch_size
+            print(f"batch size is {self.batch_size}")
             return batched_data
         def wasserstein_distance_loss(self,real_output, fake_output):
             return (tf.reduce_mean(fake_output) - tf.reduce_mean(real_output)) #+ tf.constant(1.0, dtype=tf.float32)
         def generator_loss(self,fake_output):
-            return -tf.reduce_mean(fake_output) 
+            return -tf.reduce_mean(fake_output)
         def gradient_penalty(self,batch,real_output,fake_output):
             max_pixel_value = 1
             alpha = tf.random.normal([batch,1,1,1],0.0,1.0)
             diff = fake_output - (real_output/max_pixel_value)
-            interpolated = (real_output/max_pixel_value) + alpha * diff 
+            interpolated = (real_output/max_pixel_value) + alpha * diff
             with tf.GradientTape() as gp_tape:
                 gp_tape.watch(interpolated)
                 pred = self.discriminator(interpolated,training = True)
@@ -115,7 +116,7 @@ with tf.device(device):
             real_images = batch
             with tf.GradientTape() as d_tape:
                 fake_images = self.generator(tf.random.normal((batch_size,input_dim,1)),training = True)
-                yhat_real = self.discriminator((real_images), training=True) 
+                yhat_real = self.discriminator((real_images), training=True)
                 yhat_fake = self.discriminator((fake_images), training=True)
                 yhat_realfake = tf.concat([yhat_real, yhat_fake], axis=0)
                 y_realfake = tf.concat([tf.zeros_like(yhat_real), tf.ones_like(yhat_fake)], axis=0)
@@ -125,17 +126,18 @@ with tf.device(device):
                 yhat_fake += noise_fake
                 y_realfake += tf.concat([noise_real, noise_fake], axis=0)
                 d_loss = self.wasserstein_distance_loss(yhat_real, yhat_fake)
-                gp_grads,gp_norm,gp,pred,diff,interpolated = self.gradient_penalty(4,real_images,fake_images)
+                gp_grads,gp_norm,gp,pred,diff,interpolated = self.gradient_penalty(batch_size,real_images,fake_images)
                 total_d_loss = d_loss + gp
-                combined_d_loss = total_d_loss 
+                combined_d_loss = total_d_loss
                 dgrad = d_tape.gradient(combined_d_loss, self.discriminator.trainable_variables)
                 self.d_opt.apply_gradients(zip(dgrad, self.discriminator.trainable_variables))
-            with tf.GradientTape() as g_tape: 
-                gen_images = self.generator(tf.random.normal((batch_size,input_dim,1)), training=True)                      
-                predicted_labels = self.discriminator(gen_images, training=True)                
-                total_g_loss = self.generator_loss(predicted_labels) 
+            with tf.GradientTape() as g_tape:
+                gen_images = self.generator(tf.random.normal((batch_size,input_dim,1)), training=True)
+                predicted_labels = self.discriminator(gen_images, training=True)
+                total_g_loss = self.generator_loss(predicted_labels)
                 combined_g_loss = total_g_loss
             ggrad = g_tape.gradient(combined_g_loss, self.generator.trainable_variables)
             self.g_opt.apply_gradients(zip(ggrad, self.generator.trainable_variables))
 
-            return {"d_loss":total_d_loss, "g_loss":total_g_loss} 
+            return {"d_loss":total_d_loss, "g_loss":total_g_loss}
+

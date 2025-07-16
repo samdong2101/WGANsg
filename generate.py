@@ -15,6 +15,12 @@ import json
 import time
 
 
+def rescale_images(images,divisor_list,factor_list):
+    for i in range(len(np.array(images))):
+        for j in range(len(divisor_list)):
+            images[i][j] = images[i][j] * divisor_list[j]/factor_list[j]
+    return images
+
 def main():
   parser = argparse.ArgumentParser(description="Generating materials with JSON config.")
   parser.add_argument(

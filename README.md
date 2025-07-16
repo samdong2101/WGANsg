@@ -10,4 +10,17 @@ The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1
 - Data preparation and model training can be executed within run.py, which can be executed via 
 ```python run.py --config /path/to/input_file``` 
 - The input file for run.py is a json containing a dictionary of parameters, an example of the input file can be found in this repository under 
-```WGANsg/input.json``` 
+```WGANsg/input.json```
+- The contents within the input file are as follows
+    - structures_path: a path to an array-type of pymatgen structures
+    - elem_list: A list of strings containing atomic symbols of your desired composition space i.e. ['Cu','Al']
+    - max_atoms: the maximum number of atoms N you want in your data
+    - min_atoms: the minimum number of atoms N you want in your data
+    - g_lr: the learning rate of the generator network
+    - c_lr: the learning rate of the critic network
+    - epochs_inner: the number of epochs you would like for training before each evaluation loop
+    - epochs_outer: the total number of evaluation loops you would like for training
+    - batch_size: batch size of data
+    - generator_weights_path: the desired destination to save the weights of your generator network
+    - num_images: the total number of images (crystal structures) you want to generate
+    - poscar_path: the desired destination of your converted crystal structures made by the WGAN-sg 

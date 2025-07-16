@@ -66,6 +66,8 @@ def main():
     batch_size = config.get("batch_size")
     g_lr = config.get("g_lr")
     c_lr = config.get("c_lr")
+    outer_epoch = config.get("outer_epoch")
+    inner_epoch = config.get("inner_epoch")
     generator_weight_path = config.get("generator_weights_path")
     num_images = config.get("num_images")
     poscar_path = config.get("poscar_path")
@@ -90,13 +92,13 @@ def main():
     batched_data = gans.batch_data(pngs,batch_size)
 
     emds = []
-    for i in range(50):
-        print(f'epoch {i*50}')
+    for i in range(outer_epoch):
+        print(f'epoch {i*outer_epoch}')
         gen_image_coords = []
         real_image_coords = []
         num_atoms = 2
         hist = gans.fit(batched_data,
-                        epochs=50,
+                        epochs=inner_epoch,
                         batch_size = batch_size)
         gen_images = generator(tf.random.normal((1000,64,1)), training=True)
         gen_images = gen_images.numpy()

@@ -8,7 +8,8 @@
   "epochs_outer":50,
   "batch_size": 64,
   "generator_weights_path":"/blue/hennig/sam.dong/wgan-sg/generator_weights/"
-  "pretrained_path": "/blue/hennig/sam.dong/generator_weights.h5",
+  "pretrained_path": "/blue/hennig/sam.dong/wgan-sg/generator_weights/Zr_Cu_Al_min_emd_balanced_2025-05-18_00:22:51.549754.h5",
   "num_images": 1000,
-  "poscar_path":"/home/sam.dong/WGAN_sg/POSCARS/"
+  "poscar_path":"/home/sam.dong/test_github/WGANsg/generated_structures"
   }
+

@@ -220,7 +220,7 @@ class POSCAR():
         try:
             os.mkdir(self.path)
         except:
-            print(f'{self.path} already exists!')
+            print(f'-- {self.path} already exists!')
         dims = self.extract_dims(self.images,self.elem_list)
         atomic_numbers = self.extract_atomic_numbers(self.images,dims)
         species = self.correct_species(atomic_numbers,self.elem_list)

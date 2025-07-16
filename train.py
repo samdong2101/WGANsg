@@ -100,9 +100,9 @@ def main():
         hist = gans.fit(batched_data,
                         epochs=inner_epoch,
                         batch_size = batch_size)
-        gen_images = generator(tf.random.normal((1000,64,1)), training=True)
+        gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
         gen_images = gen_images.numpy()
-        real_images = random.sample(pngs,1000)
+        real_images = random.sample(pngs,num_images)
         generated_images = rescale_images(gen_images,divisor_list,factor_list)
         real_images = rescale_images(real_images,divisor_list,factor_list)
         elem_list = pre_process.elem_list

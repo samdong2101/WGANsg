@@ -68,7 +68,7 @@ def build_discriminator(png_dim1,png_dim2):
 gpus = tf.config.list_physical_devices('GPU')
 cpus = tf.config.list_physical_devices('CPU')
 if len(gpus)>0:
-    device = gpus[0]
+    device = gpus[0].name.replace('physical_device','device')
 else:
     device = cpus[0].name.replace('physical_device','device')
 with tf.device(device):

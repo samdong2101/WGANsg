@@ -26,7 +26,7 @@ def main():
   args = parser.parse_args()
   with open(args.config) as f:
       config = json.load(f)
-
+  structures_path = config.get("structures_path")
   elem_list = config.get("elem_list")
   max_atoms = config.get("max_atoms")
   min_atoms = config.get("min_atoms")
@@ -34,6 +34,8 @@ def main():
   num_images = config.get("num_images")
   poscar_path = config.get("poscar_path")
 
+  with open(structures_path, "rb") as f:
+    structures = pickle.load(f)
   pre_process = struct2img.PreprocessData(structures,elem_list,max_atoms,min_atoms)
   structs = pre_process.preprocess_data()
   png = struct2img.PNGrepresentation(structs,None)

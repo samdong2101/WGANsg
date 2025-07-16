@@ -17,10 +17,6 @@ from ase import Atoms
 from ase.io import read, write
 from ase.build import molecule
 
-from WGAN_sg import WGAN_sg_model
-from WGAN_sg.WGAN_sg_model import build_generator,build_discriminator
-from WGAN_sg.WGAN_sg_model import GANS
-from WGAN_sg import featurize
 
 class POSCAR():
     def __init__(self, images, composition, path):

@@ -87,15 +87,13 @@ class POSCAR():
             Atomic number predictions per structure.
         elem_list : list of str
             Allowed chemical elements.
-        factor : float
-            Normalization factor used in encoding.
 
         Returns:
         --------
         corrected_species_symbols : list of list of str
             Corrected atomic species as element symbols for each structure.
         """
-        species_list = [[round(float(an / factor)) for an in atomic_numbers]
+        species_list = [[round(float(an)) for an in atomic_numbers]
                         for atomic_numbers in extracted_atomic_numbers]
         reference_species = [Element(element).number for element in elem_list]
         corrected_species_list = [self.closest_number(reference_species, species)

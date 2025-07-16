@@ -7,5 +7,7 @@ The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1
 
 <img width="1555" height="1224" alt="descriptor_with_training_loop2" src="https://github.com/user-attachments/assets/e129f64e-61b2-466b-a61b-242250d77ca0" />
 
-Data preparation and model training can be executed within run.py, which can be executed via python run.py --config /path/to/input_file 
-The input file for run.py is a json containing a dictionary of parameters, an example of the input file can be found in this repository under input.json 
+Data preparation and model training can be executed within run.py, which can be executed via 
+```python run.py --config /path/to/input_file``` 
+The input file for run.py is a json containing a dictionary of parameters, an example of the input file can be found in this repository under 
+```WGANsg/input.json``` 

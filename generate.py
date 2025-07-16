@@ -12,7 +12,7 @@ from pymatgen.core.periodic_table import Element
 from scipy.stats import wasserstein_distance
 import argparse
 import json
-
+import time
 
 
 def main():
@@ -41,10 +41,14 @@ def main():
 
   generator = WGAN_sg_model.build_generator()
   generator = generator.load_weights(pretrained_path)
+  then = time.time()
   gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
   rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
   convert = img2struct.POSCAR(rescaled_images,elem_list,poscar_path)
   converted_structures = convert.convert_to_poscars()
+  now = time.time()
+  diff = now - then 
+  print(f"successfully generated and converted {num_images} structures located at {poscar_path} in {diff} seconds!")
 
 if __name__ == '__main__':
     main()

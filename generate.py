@@ -42,7 +42,7 @@ def main():
   pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
 
   generator = WGAN_sg_model.build_generator(png_dim1,png_dim2,64)
-  generator = generator.load_weights(pretrained_path)
+  generator.load_weights(pretrained_path)
   then = time.time()
   gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
   rescaled_images = rescale_images(gen_images,divisor_list,factor_list)

@@ -5,7 +5,8 @@ This repository contains the code of the **W**asserstein **G**enerative **A**dve
 
 The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1 eV/atom), where crystals are represented in a png image format. This png representation takes crystal parameters such as element type, fractional coordinates, lattice parameters etc. and encodes these values into the pixels of an image, where pixel brightness indicates magnitude. 
 
-<img width="1555" height="1224" alt="descriptor_with_training_loop2" src="https://github.com/user-attachments/assets/e129f64e-61b2-466b-a61b-242250d77ca0" />
+<img width="1555" height="1224" alt="github_wgans_architecture" src="https://github.com/user-attachments/assets/b8a07955-4774-4509-b3b5-a8243e7e3aac" />
+
 
 - Data preparation and model training can be executed within run.py, which can be executed via
 

@@ -32,7 +32,7 @@ def extract_dims(images, elem_list):
 
     dims = []
     for image in images:
-        first_line = structure[0]
+        first_line = image[0]
         count = sum(1 for pixel in first_line if pixel > threshold)
         dims.append(count)
 

@@ -70,7 +70,7 @@ def main():
     num_images = config.get("num_images")
     poscar_path = config.get("poscar_path")
 
-    print('loading structures...')
+    print('-- loading structures...')
     with open(structures_path, "rb") as f:
         structures = pickle.load(f)
 
@@ -118,10 +118,10 @@ def main():
             if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):
                 now = datetime.now()
                 now = str(now).replace(' ','_')
-                print(f'saving generator weights with tag {now}')
+                print(f'-- saving generator weights with tag {now}')
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
         except:
-            print('first iteration, no available data')
+            print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)

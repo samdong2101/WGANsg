@@ -112,9 +112,9 @@ def main():
         real_coords = extract_coords(generated_images,gen_dims,num_atoms)
         x_gen,y_gen,z_gen = pool_coords(gen_coords)
         x_real,y_real,z_real = pool_coords(real_coords)
-        emd_x = wasserstein_distance(x_real,x_gen)
-        emd_y = wasserstein_distance(y_real,y_gen)
-        emd_z = wasserstein_distance(z_real,z_gen)
+        emd_x = wasserstein_distance(x_real.flatten(),x_gen.flatten())
+        emd_y = wasserstein_distance(y_real.flatten(),y_gen.flatten())
+        emd_z = wasserstein_distance(z_real.flatten(),z_gen.flatten())
         try:
             emd_means = [np.mean(emd) for emd in emds]
             if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):

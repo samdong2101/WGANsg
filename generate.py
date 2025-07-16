@@ -51,6 +51,7 @@ def main():
   generator.load_weights(pretrained_path)
   then = time.time()
   gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
+  gen_images = gen_images.to_numpy()
   rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
   convert = img2struct.POSCAR(rescaled_images,elem_list,poscar_path)
   converted_structures = convert.convert_to_poscars()

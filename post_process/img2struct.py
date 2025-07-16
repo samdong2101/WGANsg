@@ -96,9 +96,10 @@ class POSCAR():
         species_list = [[round(float(an)) for an in atomic_numbers]
                         for atomic_numbers in extracted_atomic_numbers]
         reference_species = [Element(element).number for element in elem_list]
+        print('reference_species:',reference_species) 
         corrected_species_list = [self.closest_number(reference_species, species)
                                   for species in species_list]
-
+        print('corrected_species:',corrected_species_list) 
         corrected_species_symbols = [[Element.from_Z(atomic_number).name
                                       for atomic_number in species]
                                      for species in corrected_species_list]

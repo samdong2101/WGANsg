@@ -1,2 +1,11 @@
 # WGANs-Integrated-Genetic-Algorithms
-Framework for integrating Wasserstein Generative Adversarial Networks into Genetic Algorithms for crystal structure predictions
+This repository contains the code of the Wasserstein Generative Adversarial Structure Generator (WGAN-sg) designed to create stronger starting initial populations for genetic algorithms for crystal structure and phase prediction. 
+
+<img width="2500" height="1045" alt="generative_initialization_strategy_12_2_2024_d" src="https://github.com/user-attachments/assets/1d6132da-4b8b-4d8d-a7fa-fbcccf3dc25a" />
+
+The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1 eV/atom), where crystals are represented in a png image format. This png representation takes crystal parameters such as element type, fractional coordinates, lattice parameters etc. and encodes these values into the pixels of an image, where pixel brightness indicates magnitude. 
+
+<img width="1555" height="1224" alt="descriptor_with_training_loop2" src="https://github.com/user-attachments/assets/e129f64e-61b2-466b-a61b-242250d77ca0" />
+
+Data preparation and model training can be executed within run.py, which can be executed via python run.py --config /path/to/input_file 
+The input file for run.py is a json containing a dictionary of parameters, an example of the input file can be found in this repository under input.json 

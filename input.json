@@ -1,0 +1,13 @@
+{"structures_path":"/blue/hennig/sam.dong/structure_energies.pkl",
+"elem_list": ["Zr","Cu","Al"],
+"max_atoms":12,
+"min_atoms":2,
+  "g_lr": 0.0002,
+  "c_lr": 0.000077,
+  "epochs_inner": 50,
+  "epochs_outer":50,
+  "batch_size": 64,
+  "generator_weights_path":"/blue/hennig/sam.dong/wgan-sg/generator_weights/",
+  "num_images": 1000,
+  "poscar_path":"/home/sam.dong/WGAN_sg/POSCARS/"
+  }

@@ -14,4 +14,38 @@ import argparse
 import json
 
 
-generator = WGAN_sg_model.build_generator()
+
+def main():
+  parser = argparse.ArgumentParser(description="Generating materials with JSON config.")
+  parser.add_argument(
+        '--config',
+        type=str,
+        required=True,
+        help='Path to JSON config file, e.g., config.json'
+    )
+  args = parser.parse_args()
+  with open(args.config) as f:
+      config = json.load(f)
+
+  elem_list = config.get("elem_list")
+  max_atoms = config.get("max_atoms")
+  min_atoms = config.get("min_atoms")
+  pretrained_path = config.get("pretrained_path")
+  num_images = config.get("num_images")
+  poscar_path = config.get("poscar_path")
+
+  pre_process = struct2img.PreprocessData(structures,elem_list,max_atoms,min_atoms)
+  structs = pre_process.preprocess_data()
+  png = struct2img.PNGrepresentation(structs,None)
+  pngs,png_dim1,png_dim2,divisor_list,factor_list = png.featurize()
+
+  generator = WGAN_sg_model.build_generator()
+  generator = generator.load_weights(pretrained_path)
+  gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
+  rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
+  convert = img2struct.POSCAR(rescaled_images,elem_list,poscar_path)
+  converted_structures = convert.convert_to_poscars()
+
+if __name__ == '__main__':
+    main()
+

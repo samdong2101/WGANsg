@@ -42,7 +42,7 @@ def extract_coords(images, dims, num_atoms):
     coords = []
     for dim in dims:
         if dim == num_atoms:
-            coord = images[count][1:4][0:i]
+            coord = images[count][1:4][0:dim]
             coords.append(coord)
         else:
             pass

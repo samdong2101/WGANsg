@@ -140,7 +140,8 @@ class PreprocessData:
         else:
             print('Done preprocessing! ')
             return filtered_structures
-        
+
+
 class PNGrepresentation:
     def __init__(self,structures_list,bool_frac_coords = True):
         # Pairwise distance matrices and max dimension
@@ -283,7 +284,7 @@ class PNGrepresentation:
         self.z_coords = z_coords
         return x_coords,y_coords,z_coords
 
-    def add_lattice_constants(self, structure_list, max_dim, frac_coords):
+        def add_lattice_constants(self, structure_list, max_dim, frac_coords):
         """
         Extracts and pads lattice parameters (a, b, c) from a list of structures.
 
@@ -403,4 +404,5 @@ class PNGrepresentation:
         print(f'Featurization complete!')
         self.png_dim1,self.png_dim2 = self.pngs[0].shape[0],self.pngs[0].shape[1]
         return self.pngs,self.png_dim1,self.png_dim2,self.divisor_list,self.factor_list
+
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        406,1         Bot

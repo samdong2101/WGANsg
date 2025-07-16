@@ -135,7 +135,7 @@ class PreprocessData:
         if self.augment:
             print(f'-- Augmenting...')
             rotated_data_set = self.generate_rotated_structures(extracted_structures)
-            print('Done preprocessing! ')
+            print('-- Done preprocessing! ')
             return rotated_data_set
         else:
             print('-- Done preprocessing! ')

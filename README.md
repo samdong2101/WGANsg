@@ -1,7 +1,7 @@
 # WGANs-Integrated-Genetic-Algorithms
 This repository contains the code of the **W**asserstein **G**enerative **A**dversarial **S**tructure **G**enerator (WGAN-sg) designed to create stronger starting initial populations for genetic algorithms for crystal structure and phase prediction. 
 
-<img width="2500" height="1045" alt="generative_initialization_strategy_12_2_2024_d" src="https://github.com/user-attachments/assets/1d6132da-4b8b-4d8d-a7fa-fbcccf3dc25a" />
+<img width="2500" height="1045" alt="github_workflow" src="https://github.com/user-attachments/assets/399db30c-07c5-4c6e-88a6-06eee4475b90" />
 
 The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1 eV/atom), where crystals are represented in a png image format. This png representation takes crystal parameters such as element type, fractional coordinates, lattice parameters etc. and encodes these values into the pixels of an image, where pixel brightness indicates magnitude. 
 

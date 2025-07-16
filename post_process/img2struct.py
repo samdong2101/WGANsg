@@ -103,6 +103,7 @@ class POSCAR():
         corrected_species_symbols = [[Element.from_Z(atomic_number).name
                                       for atomic_number in species]
                                      for species in corrected_species_list]
+        print('corrected_species symbols:',corrected_species_symbols)
 
         return species_list
 

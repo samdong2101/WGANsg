@@ -128,17 +128,17 @@ class PreprocessData:
         return rotated_data_set
 
     def preprocess_data(self):
-        print(f'Filtering {len(self.structures_list)} structures < {self.min_energy} eV with max {self.max_size} atoms and min {self.min_size} atoms...')
+        print(f'-- Filtering {len(self.structures_list)} structures < {self.min_energy} eV with max {self.max_size} atoms and min {self.min_size} atoms...')
         filtered_structures = self.filter_structures(self.structures_list, self.max_size, self.min_size, self.min_energy)
-        print(f'Extracting structures with composition {self.elem_list}...')
+        print(f'-- Extracting structures with composition {self.elem_list}...')
         extracted_structures = self.extract_structures(filtered_structures,self.elem_list)
         if self.augment:
-            print(f'Augmenting...')
+            print(f'-- Augmenting...')
             rotated_data_set = self.generate_rotated_structures(extracted_structures)
             print('Done preprocessing! ')
             return rotated_data_set
         else:
-            print('Done preprocessing! ')
+            print('-- Done preprocessing! ')
             return filtered_structures
 
 
@@ -391,7 +391,7 @@ class PNGrepresentation:
                 png[row] = png[row]/self.divisor_list[row]
 
     def featurize(self):
-        print(f'Featurizing {len(self.structures_list)} structures into images...')
+        print(f'-- Featurizing {len(self.structures_list)} structures into images...')
         pwds,max_dim = self.get_pairwise_distances(self.structures_list)
         atomic_numbers = self.get_atomic_numbers(self.structures_list,max_dim)
         x,y,z = self.add_coordinates(self.structures_list,max_dim)
@@ -401,7 +401,7 @@ class PNGrepresentation:
         pngs = self.compile_pngs()
         truncated_pngs = self.truncate_pngs()
         self.normalize_pngs()
-        print(f'Featurization complete!')
+        print(f'-- Featurization complete!')
         self.png_dim1,self.png_dim2 = self.pngs[0].shape[0],self.pngs[0].shape[1]
         return self.pngs,self.png_dim1,self.png_dim2,self.divisor_list,self.factor_list
         

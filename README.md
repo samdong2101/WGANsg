@@ -1,5 +1,5 @@
 # WGANs-Integrated-Genetic-Algorithms
-This repository contains the code of the Wasserstein Generative Adversarial Structure Generator (WGAN-sg) designed to create stronger starting initial populations for genetic algorithms for crystal structure and phase prediction. 
+This repository contains the code of the **W**asserstein **G**enerative **A**dversarial **S**tructure **G**enerator (WGAN-sg) designed to create stronger starting initial populations for genetic algorithms for crystal structure and phase prediction. 
 
 <img width="2500" height="1045" alt="generative_initialization_strategy_12_2_2024_d" src="https://github.com/user-attachments/assets/1d6132da-4b8b-4d8d-a7fa-fbcccf3dc25a" />
 

@@ -11,6 +11,11 @@ The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1
 - Data preparation and model training can be executed within run.py, which can be executed via
 
 ```python train.py --config /path/to/input_file``` 
+
+- Similarly, if you would like to generate materials from a pre-trained model, this can be executed via
+  
+```python generate.py --config /path/to/input_file``` 
+
 - The input file for run.py is a json containing a dictionary of parameters, an example of the input file can be found in this repository under
   
 ```WGANsg/input.json```

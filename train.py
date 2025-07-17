@@ -94,7 +94,6 @@ def main():
     batched_data = gans.batch_data(pngs,batch_size)
 
     emds = []
-    os.chdir('/blue/hennig/sam.dong/GANs/gans_scripts/nvvm/libdevice')
     for i in range(outer_epoch):
         print(f'epoch {i*inner_epoch}')
         gen_image_coords = []

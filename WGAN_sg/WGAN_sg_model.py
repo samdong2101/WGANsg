@@ -91,7 +91,6 @@ with tf.device(device):
             data_size = (len(data)//batch_size)*batch_size
             batched_data = data.reshape((data.shape[0],data.shape[1],data.shape[2],1))[0:data_size]
             self.batch_size = batch_size
-            print(f"batch size is {self.batch_size}")
             return batched_data
         def wasserstein_distance_loss(self,real_output, fake_output):
             return (tf.reduce_mean(fake_output) - tf.reduce_mean(real_output)) #+ tf.constant(1.0, dtype=tf.float32)

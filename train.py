@@ -115,6 +115,7 @@ def main():
         emd_x = wasserstein_distance(x_real.flatten(),x_gen.flatten())
         emd_y = wasserstein_distance(y_real.flatten(),y_gen.flatten())
         emd_z = wasserstein_distance(z_real.flatten(),z_gen.flatten())
+        emds.append([emd_x,emd_y,emd_z])
         try:
             emd_means = [np.mean(emd) for emd in emds]
             if outer_epoch == 2:
@@ -129,7 +130,7 @@ def main():
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
         except:
             print('-- first iteration, no available data')
-        emds.append([emd_x,emd_y,emd_z])
+        #emds.append([emd_x,emd_y,emd_z])
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
     gen_images = gen_images.numpy()

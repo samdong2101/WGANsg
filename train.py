@@ -12,7 +12,7 @@ from pymatgen.core.periodic_table import Element
 from scipy.stats import wasserstein_distance
 import argparse
 import json
-
+import os
 
 def pool_coords(arr):
     pooled_coords = np.vstack(arr)

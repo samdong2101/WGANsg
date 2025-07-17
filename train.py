@@ -117,6 +117,11 @@ def main():
         emd_z = wasserstein_distance(z_real.flatten(),z_gen.flatten())
         try:
             emd_means = [np.mean(emd) for emd in emds]
+            if outer_epoch == 2:
+                now = datetime.now()
+                now = str(now).replace(' ','_')
+                print(f'-- saving generator weights with tag {now}')
+                generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
             if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):
                 now = datetime.now()
                 now = str(now).replace(' ','_')

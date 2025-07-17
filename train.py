@@ -121,11 +121,6 @@ def main():
         emd_means = [np.mean(emd) for emd in emds]
         try:
             emd_means_sorted = np.sort(emd_means)
-            if i == 2:
-                now = datetime.now()
-                now = str(now).replace(' ','_')
-                print(f'-- saving generator weights with tag {now}')
-                generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
             if np.mean([emd_x,emd_y,emd_z]) < emd_means_sorted[0]:
                 now = datetime.now()
                 now = str(now).replace(' ','_')
@@ -133,6 +128,9 @@ def main():
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
         except Exception as e:
             print(e)
+            now = datetime.now()
+            print(f'-- saving initial generator weights with tag {now}')
+            generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
             print('-- first iteration, no available data')
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)

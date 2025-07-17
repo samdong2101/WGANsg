@@ -220,12 +220,12 @@ class POSCAR():
         try:
             os.mkdir(self.path)
         except:
-            print(f'-- {self.path} already exists!')
+            print(f'-- {self.path} already exists')
         dims = self.extract_dims(self.images,self.elem_list)
         atomic_numbers = self.extract_atomic_numbers(self.images,dims)
         species = self.correct_species(atomic_numbers,self.elem_list)
         coords = self.get_coordinates(self.images,dims)
         lattice_parameters = self.get_lattice_parameters(self.images)
         structures = self.create_poscar(coords,species,lattice_parameters,self.path)
-        print(f'-- sucessfully converted {len(self.images} images into structures within {self.elem_list} composition!')
+        print(f'-- sucessfully converted {len(self.images)} images into structures within {self.elem_list} composition in {self.path}!')
         return structures

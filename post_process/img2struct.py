@@ -227,5 +227,5 @@ class POSCAR():
         coords = self.get_coordinates(self.images,dims)
         lattice_parameters = self.get_lattice_parameters(self.images)
         structures = self.create_poscar(coords,species,lattice_parameters,self.path)
-        
+        print(f'-- sucessfully converted {len(self.images} images into structures within {self.elem_list} composition!')
         return structures

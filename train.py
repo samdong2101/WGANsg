@@ -117,9 +117,8 @@ def main():
         emd_x = wasserstein_distance(x_real.flatten(),x_gen.flatten())
         emd_y = wasserstein_distance(y_real.flatten(),y_gen.flatten())
         emd_z = wasserstein_distance(z_real.flatten(),z_gen.flatten())
-        emds.append([emd_x,emd_y,emd_z])
-        emd_means = [np.mean(emd) for emd in emds]
         try:
+            emd_means = [np.mean(emd) for emd in emds]
             emd_means_sorted = np.sort(emd_means)
             if np.mean([emd_x,emd_y,emd_z]) < emd_means_sorted[0]:
                 now = datetime.now()
@@ -132,6 +131,7 @@ def main():
             print(f'-- saving initial generator weights with tag {now}')
             generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
             print('-- first iteration, no available data')
+        emds.append([emd_x,emd_y,emd_z])
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
     gen_images = gen_images.numpy()

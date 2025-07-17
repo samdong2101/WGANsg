@@ -13,12 +13,14 @@ from scipy.stats import wasserstein_distance
 import argparse
 import json
 
+
 def pool_coords(arr):
-    pooled_coords = np.hstack(arr)
+    pooled_coords = np.vstack(arr)
     x_coords = pooled_coords[:,0]
     y_coords = pooled_coords[:,1]
     z_coords = pooled_coords[:,2]
     return x_coords,y_coords,z_coords
+    
 def rescale_images(images,divisor_list,factor_list):
     for i in range(len(np.array(images))):
         for j in range(len(divisor_list)):
@@ -29,7 +31,6 @@ def extract_dims(images, elem_list):
     # Get atomic numbers of elements
     atomic_numbers = [Element(el).Z for el in elem_list]
     threshold = min(atomic_numbers) / 4
-
     dims = []
     for image in images:
         first_line = image[0]
@@ -48,6 +49,7 @@ def extract_coords(images, dims, num_atoms):
             pass
         count = count + 1
     return np.array(coords)
+
 def main():
     parser = argparse.ArgumentParser(description="Run training with JSON config.")
     parser.add_argument(
@@ -92,11 +94,12 @@ def main():
     batched_data = gans.batch_data(pngs,batch_size)
 
     emds = []
+    os.chdir('/blue/hennig/sam.dong/GANs/gans_scripts/nvvm/libdevice')
     for i in range(outer_epoch):
-        print(f'epoch {i*outer_epoch}')
+        print(f'epoch {i*inner_epoch}')
         gen_image_coords = []
         real_image_coords = []
-        num_atoms = 2
+        num_atoms = 10
         hist = gans.fit(batched_data,
                         epochs=inner_epoch,
                         batch_size = batch_size)
@@ -109,28 +112,29 @@ def main():
         gen_dims = extract_dims(generated_images,elem_list = elem_list)
         real_dims = extract_dims(real_images,elem_list = elem_list)
         gen_coords = extract_coords(generated_images,gen_dims,num_atoms)
-        real_coords = extract_coords(generated_images,gen_dims,num_atoms)
+        real_coords = extract_coords(real_images,gen_dims,num_atoms)
         x_gen,y_gen,z_gen = pool_coords(gen_coords)
         x_real,y_real,z_real = pool_coords(real_coords)
         emd_x = wasserstein_distance(x_real.flatten(),x_gen.flatten())
         emd_y = wasserstein_distance(y_real.flatten(),y_gen.flatten())
         emd_z = wasserstein_distance(z_real.flatten(),z_gen.flatten())
         emds.append([emd_x,emd_y,emd_z])
+        emd_means = [np.mean(emd) for emd in emds]
         try:
-            emd_means = [np.mean(emd) for emd in emds]
-            if outer_epoch == 2:
+            emd_means_sorted = np.sort(emd_means)
+            if i == 2:
                 now = datetime.now()
                 now = str(now).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
-            if np.mean([emd_x,emd_y,emd_z]) < np.sort(emd_means[0]):
+            if np.mean([emd_x,emd_y,emd_z]) < emd_means_sorted[0]:
                 now = datetime.now()
                 now = str(now).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
-        except:
+        except Exception as e:
+            print(e)
             print('-- first iteration, no available data')
-        #emds.append([emd_x,emd_y,emd_z])
     generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
     gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
     gen_images = gen_images.numpy()

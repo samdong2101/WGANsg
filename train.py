@@ -128,6 +128,7 @@ def main():
         except Exception as e:
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])
+    print('-- training complete!!!')
 
 if __name__ == '__main__':
     main()

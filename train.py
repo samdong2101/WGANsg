@@ -128,11 +128,14 @@ def main():
                 [os.remove(generator_weight_path + f) for f in os.listdir(generator_weight_path) if now_old in f]
                 now = str(datetime.now()).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
-                generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_{now}.h5')
+                generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_min_emd_{now}.h5')
                 now_old = now
         except Exception as e:
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])
+        now = str(datetime.now()).replace(' ','_')
+        print(f'-- saving generator weights with tag {now}')
+        generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_end_{now}.h5')
     print('-- training complete!!!')
 
 if __name__ == '__main__':

@@ -7,6 +7,9 @@ The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1
 
 <img width="1555" height="1224" alt="github_wgans_architecture" src="https://github.com/user-attachments/assets/b8a07955-4774-4509-b3b5-a8243e7e3aac" />
 
+- This python package can be installed via
+
+```git clone https://github.com/samdong2101/WGANsg.git```
 
 - Data preparation and model training can be executed within run.py, which can be executed via
 

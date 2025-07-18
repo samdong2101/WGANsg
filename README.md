@@ -11,7 +11,7 @@ The WGAN-sg is trained on thermodynamically stable and metastable crystals (<0.1
 
 ```git clone https://github.com/samdong2101/WGANsg.git```
 
-- Data preparation and model training can be executed within run.py, which can be executed via
+- Data preparation and model training can be executed within train.py, which can be executed via
 
 ```python train.py --config /path/to/input_file``` 
 

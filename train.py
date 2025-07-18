@@ -73,7 +73,10 @@ def main():
     generator_weight_path = config.get("generator_weights_path")
     num_images = config.get("num_images")
     poscar_path = config.get("poscar_path")
-
+    try:
+        os.mkdir(generator_weight_path)
+    except:
+        pass
     print('-- loading structures...')
     with open(structures_path, "rb") as f:
         structures = pickle.load(f)

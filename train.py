@@ -94,6 +94,7 @@ def main():
     batched_data = gans.batch_data(pngs,batch_size)
 
     emds = []
+    now_old = str(datetime.now()).replace(' ','_')
     for i in range(outer_epoch):
         print(f'epoch {i*inner_epoch}')
         gen_image_coords = []
@@ -121,10 +122,11 @@ def main():
             emd_means = [np.mean(emd) for emd in emds]
             emd_means_sorted = np.sort(emd_means)
             if np.mean([emd_x,emd_y,emd_z]) < emd_means_sorted[0]:
-                now = datetime.now()
-                now = str(now).replace(' ','_')
+                [os.remove(generator_weight_path + f) for f in os.listdir(generator_weight_path) if now_old in f]
+                now = str(datetime.now()).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
                 generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_min_emd_{now}.h5')
+                now_old = now
         except Exception as e:
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])

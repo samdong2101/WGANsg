@@ -124,7 +124,7 @@ def main():
                 now = datetime.now()
                 now = str(now).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
-                generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
+                generator.save_weights(f'{generator_weight_path}/{''.join(elem_list)}_min_emd_{now}.h5')
         except Exception as e:
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])

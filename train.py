@@ -126,18 +126,8 @@ def main():
                 print(f'-- saving generator weights with tag {now}')
                 generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
         except Exception as e:
-            print(e)
-            now = datetime.now()
-            print(f'-- saving initial generator weights with tag {now}')
-            generator.save_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])
-    generator.load_weights(f'{generator_weight_path}/{str(elem_list)}_min_emd_{now}.h5')
-    gen_images = generator(tf.random.normal((num_images,64,1)), training=True)
-    gen_images = gen_images.numpy()
-    rescaled_images = rescale_images(gen_images,divisor_list,factor_list)
-    convert = img2struct.POSCAR(rescaled_images,elem_list,poscar_path)
-    converted_structures = convert.convert_to_poscars()
 
 if __name__ == '__main__':
     main()

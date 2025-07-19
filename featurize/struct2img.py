@@ -28,9 +28,6 @@ from pymatgen.transformations.standard_transformations import RotationTransforma
 from sklearn.model_selection import train_test_split
 from sklearn.decomposition import PCA
 
-with open("/blue/hennig/sam.dong/structure_energies.pkl", "rb") as f:
-    structures = pickle.load(f)
-
 class PreprocessData:
 
     def __init__(self,structures_list,composition,max_size,min_size,augment = True, min_energy = 0.1):

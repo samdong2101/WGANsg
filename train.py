@@ -22,6 +22,7 @@ def pool_coords(arr):
     return x_coords,y_coords,z_coords
     
 def rescale_images(images,divisor_list,factor_list):
+    images = np.array(images, dtype=np.float32)
     for i in range(len(np.array(images))):
         for j in range(len(divisor_list)):
             images[i][j] = images[i][j] * divisor_list[j]/factor_list[j]

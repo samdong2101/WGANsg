@@ -9,7 +9,6 @@ from tensorflow.keras.losses import BinaryCrossentropy, MeanSquaredError
 from tensorflow.keras.preprocessing.image import array_to_img
 from tensorflow.keras.callbacks import Callback
 from tensorflow.keras import layers
-from featurize.struct2img import PreprocessData,PNGrepresentation
 import pickle
 import numpy as np
 

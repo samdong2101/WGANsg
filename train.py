@@ -13,7 +13,7 @@ from scipy.stats import wasserstein_distance
 import argparse
 import json
 import os
-
+print('imports done')
 def pool_coords(arr):
     pooled_coords = np.vstack(arr)
     x_coords = pooled_coords[:,0]
@@ -22,7 +22,6 @@ def pool_coords(arr):
     return x_coords,y_coords,z_coords
     
 def rescale_images(images,divisor_list,factor_list):
-    images = np.array(images, dtype=np.float32)
     for i in range(len(np.array(images))):
         for j in range(len(divisor_list)):
             images[i][j] = images[i][j] * divisor_list[j]/factor_list[j]
@@ -74,10 +73,12 @@ def main():
     generator_weight_path = config.get("generator_weights_path")
     num_images = config.get("num_images")
     poscar_path = config.get("poscar_path")
-    try:
+    
+    try: 
         os.mkdir(generator_weight_path)
     except:
-        pass
+        pass 
+
     print('-- loading structures...')
     with open(structures_path, "rb") as f:
         structures = pickle.load(f)
@@ -99,11 +100,12 @@ def main():
 
     emds = []
     now_old = str(datetime.now()).replace(' ','_')
+    os.chdir('/blue/hennig/sam.dong/GANs/gans_scripts/nvvm/libdevice')
     for i in range(outer_epoch):
         print(f'epoch {i*inner_epoch}')
         gen_image_coords = []
         real_image_coords = []
-        num_atoms = 10
+        num_atoms = 2
         hist = gans.fit(batched_data,
                         epochs=inner_epoch,
                         batch_size = batch_size)
@@ -126,17 +128,16 @@ def main():
             emd_means = [np.mean(emd) for emd in emds]
             emd_means_sorted = np.sort(emd_means)
             if np.mean([emd_x,emd_y,emd_z]) < emd_means_sorted[0]:
-                [os.remove(generator_weight_path + f) for f in os.listdir(generator_weight_path) if now_old in f]
+                [os.remove(generator_weight_path + f) for f in os.listdir(generator_weight_path) if now_old in f] 
                 now = str(datetime.now()).replace(' ','_')
                 print(f'-- saving generator weights with tag {now}')
-                generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_min_emd_{now}.h5')
-                now_old = now
+                generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_{now}.h5')
+                now_old = now 
+
         except Exception as e:
             print('-- first iteration, no available data')
         emds.append([emd_x,emd_y,emd_z])
-        now = str(datetime.now()).replace(' ','_')
-        print(f'-- saving generator weights with tag {now}')
-        generator.save_weights(f'{generator_weight_path}/{"".join(elem_list)}_{min_atoms}-{max_atoms}_atoms_end_{now}.h5')
+        
     print('-- training complete!!!')
 
 if __name__ == '__main__':
